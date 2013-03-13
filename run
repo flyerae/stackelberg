@@ -1,8 +1,11 @@
-if [ $(pidof rmiregistry) != "" ]                                                     
+if [ $(pidof rmiregistry) ]                                                     
+  echo "Running"
 then                                                                                                                                                    
   rmiregistry &
 fi   
 
 java -classpath .:libs/* -Djava.rmi.server.hostname=127.0.0.1 comp34120.ex2.Main &
 sleep 2
-java -Djava.rmi.server.hostname=127.0.0.1 Leader
+javac -d classes/ src/Leader.java
+rm -rf classes/*
+java -Djava.rmi.server.hostname=127.0.0.1 -classpath .:classes/ Leader
