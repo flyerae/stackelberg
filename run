@@ -5,8 +5,11 @@ else
   rmiregistry &
 fi   
 
-java -classpath .:libs/* -Djava.rmi.server.hostname=127.0.0.1 comp34120.ex2.Main &
+CLASSPATH="-cp .:libs/*:classes/"
+OPTIONS="-Djava.rmi.server.hostname=127.0.0.1 "
+
+java $CLASSPATH $OPTIONS comp34120.ex2.Main &
 sleep 2
-javac -d . src/Leader.java
 rm -rf classes/*
-java -Djava.rmi.server.hostname=127.0.0.1 Leader
+javac $CLASSPATH -d classes/ src/*
+java $CLASSPATH $OPTIONS Leader
