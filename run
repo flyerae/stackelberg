@@ -1,7 +1,5 @@
-if [ $(pidof rmiregistry) ]                                                     
-then                                                                            
-  echo "Running"
-else                                                                            
+if [ $(pidof rmiregistry) != "" ]                                                     
+then                                                                                                                                                    
   rmiregistry &
 fi   
 
