@@ -26,7 +26,6 @@ final class Leader
 	public void goodbye()
 		throws RemoteException
 	{
-		ExitTask.exit(500);
 	}
 
 	/**
@@ -59,22 +58,4 @@ final class Leader
 		new Leader();
 	}
 
-	/**
-	 * The task used to automatically exit the leader process
-	 * @author Xin
-	 */
-	private static class ExitTask
-		extends TimerTask
-	{
-		static void exit(final long p_delay)
-		{
-			(new Timer()).schedule(new ExitTask(), p_delay);
-		}
-		
-		@Override
-		public void run()
-		{
-			System.exit(0);
-		}
-	}
 }
