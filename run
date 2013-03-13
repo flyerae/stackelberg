@@ -1,6 +1,7 @@
 if [ $(pidof rmiregistry) ]                                                     
+then                                                                            
   echo "Running"
-then                                                                                                                                                    
+else                                                                            
   rmiregistry &
 fi   
 
