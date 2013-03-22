@@ -14,32 +14,31 @@ final class Leader extends PlayerImpl
   private List<Record> data = new ArrayList<Record>();
   private float a, b;
 
-	private Leader() throws RemoteException, NotBoundException
-	{
-		super(PlayerType.LEADER, "Leader");
-	}
-
-  @Override
-  public void startSimulation(final int p_steps) {
-    readData();
-    findReactionFunction();
+  private Leader() throws RemoteException, NotBoundException
+  {
+    super(PlayerType.LEADER, "Leader");
   }
 
-	@Override
-	public void proceedNewDay(int p_date) throws RemoteException
-	{
-    // data.add(m_platformSub.query(m_type, p_date?));
-    // updateReactionFunction();
+  @Override
+    public void startSimulation(final int p_steps) {
+      readData();
+      findReactionFunction();
+    }
 
-    float price = fredsFunction();
-		m_platformStub.publishPrice(m_type, price);
-	}
+  @Override
+    public void proceedNewDay(int p_date) throws RemoteException
+    {
+      // data.add(m_platformSub.query(m_type, p_date?));
+      // updateReactionFunction();
 
-	public static void main(final String[] p_args)
-		throws RemoteException, NotBoundException
-	{
-		new Leader();
-	}
+      float price = fredsFunction();
+      m_platformStub.publishPrice(m_type, price);
+    }
+
+  public static void main(final String[] p_args) throws RemoteException, NotBoundException
+  {
+    new Leader();
+  }
 
   private void readData() {
     // read CSV into data
