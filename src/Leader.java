@@ -20,20 +20,20 @@ final class Leader extends PlayerImpl
   }
 
   @Override
-    public void startSimulation(final int p_steps) {
-      readData();
-      findReactionFunction();
-    }
+  public void startSimulation(final int p_steps) {
+    readData();
+    findReactionFunction();
+  }
 
   @Override
-    public void proceedNewDay(int p_date) throws RemoteException
-    {
-      // data.add(m_platformSub.query(m_type, p_date?));
-      // updateReactionFunction();
+  public void proceedNewDay(int p_date) throws RemoteException
+  {
+    // data.add(m_platformSub.query(m_type, p_date?));
+    // updateReactionFunction();
 
-      float price = fredsFunction();
-      m_platformStub.publishPrice(m_type, price);
-    }
+    float price = fredsFunction();
+    m_platformStub.publishPrice(m_type, price);
+  }
 
   public static void main(final String[] p_args) throws RemoteException, NotBoundException
   {
