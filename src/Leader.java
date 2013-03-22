@@ -10,7 +10,7 @@ final class Leader extends PlayerImpl
 {
 	private Leader() throws RemoteException, NotBoundException
 	{
-		super(PlayerType.LEADER, "Simple Leader");
+		super(PlayerType.LEADER, "Leader");
 	}
 
 	@Override
