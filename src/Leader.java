@@ -14,11 +14,6 @@ final class Leader extends PlayerImpl
 	}
 
 	@Override
-	public void goodbye() throws RemoteException
-	{
-	}
-
-	@Override
 	public void proceedNewDay(int p_date) throws RemoteException
 	{
 		m_platformStub.publishPrice(m_type, 1.0f);
