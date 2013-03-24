@@ -1,3 +1,5 @@
+package comp34120.ex2;
+
 import comp34120.ex2.PlayerImpl;
 import comp34120.ex2.PlayerType;
 import comp34120.ex2.Record;
@@ -8,6 +10,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 final class Leader extends PlayerImpl
 {
@@ -41,7 +46,33 @@ final class Leader extends PlayerImpl
   }
 
   private void readData() {
-    // read CSV into data
+    BufferedReader input = null;
+
+    try {
+      input = new BufferedReader(new FileReader("data/Mk1.csv"));
+
+      input.readLine(); // skip headers
+
+      String line;
+      String[] features;
+      Record record;
+      while ((line = input.readLine()) != null) {
+        features = line.split(",");
+        record = new Record(Integer.parseInt(features[0]),
+                            Float.parseFloat(features[1]),
+                            Float.parseFloat(features[2]),
+                            Float.parseFloat(features[3]));
+        data.add(record);
+      }
+    } catch (IOException e) {
+      System.out.println("Error occurred reading file " + input + ": " + e.getMessage());
+    } finally {
+      try {
+        input.close();
+      } catch (IOException e) {
+        System.out.println("Failed to close file " + input + ": " + e.getMessage());
+      }
+    }
   }
 
   private void findReactionFunction() {
