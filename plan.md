@@ -14,4 +14,5 @@ Learning the reaction funciton
 
 Finding the global maxima
 -------------------------
-Something else goes here 
+* Having estimated the follower's reaction function, R(x), we will then
+  calculate our optimal strategy by maximising the (leader's) payoff function, *JL[]*.

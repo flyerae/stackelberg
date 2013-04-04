@@ -26,7 +26,7 @@ final class Leader extends PlayerImpl
 
   @Override
   public void startSimulation(final int p_steps) {
-    readData();
+    readData("data/Mk1.csv");
     findReactionFunction();
   }
 
@@ -36,7 +36,7 @@ final class Leader extends PlayerImpl
     // data.add(m_platformSub.query(m_type, p_date?));
     // updateReactionFunction();
 
-    float price = fredsFunction();
+    float price = maximisePayoff();
     m_platformStub.publishPrice(m_type, price);
   }
 
@@ -45,17 +45,17 @@ final class Leader extends PlayerImpl
     new Leader();
   }
 
-  private void readData() {
+  private void readData(String fileName) {
     BufferedReader input = null;
 
     try {
-      input = new BufferedReader(new FileReader("data/Mk1.csv"));
-
+      input = new BufferedReader(new FileReader(fileName));
       input.readLine(); // skip headers
 
       String line;
       String[] features;
       Record record;
+      
       while ((line = input.readLine()) != null) {
         features = line.split(",");
         record = new Record(Integer.parseInt(features[0]),
@@ -65,12 +65,12 @@ final class Leader extends PlayerImpl
         data.add(record);
       }
     } catch (IOException e) {
-      System.out.println("Error occurred reading file " + input + ": " + e.getMessage());
+      System.err.println("Error occurred reading file " + input + ": " + e.getMessage());
     } finally {
       try {
         input.close();
       } catch (IOException e) {
-        System.out.println("Failed to close file " + input + ": " + e.getMessage());
+        System.err.println("Failed to close file " + input + ": " + e.getMessage());
       }
     }
   }
@@ -84,7 +84,8 @@ final class Leader extends PlayerImpl
     // online learning
   }
 
-  private float fredsFunction() {
+  private float maximisePayoff() {
+    // iterate to find maximum
     return 1.0f;
   }
 }
