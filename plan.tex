@@ -1,0 +1,120 @@
+% 10 points on A4 paper
+\documentclass[10pt,a4paper]{report}
+
+% University guidelines for A4
+\usepackage{a4-mancs}
+
+% Fonts for postscript printers
+\usepackage{pslatex}
+
+% Colours
+\usepackage[table,usenames,dvipsnames]{xcolor}
+
+% Gantt Charts
+\usepackage{pgfgantt}
+
+% setup type
+\renewcommand{\familydefault}{\sfdefault}
+\setlength{\parskip}{8pt}
+\setlength{\parindent}{0pt}
+\linespread{1.2}
+
+% Document title
+\title{Team Brogram: Stackelberg Plan}
+
+% Author
+\author{Freddy Kelly, Danyal Prout \& Sam Bell}
+
+% Begin document
+\begin{document}
+
+% Add title
+\maketitle
+
+% Add table of contents
+\tableofcontents
+
+% start new page
+\newpage
+
+\section{Design}
+
+\subsection{Overview}
+\begin{enumerate}
+  \item On game intialisation, parse \emph{CSV} and perform batch regression to find follower's reaction function, $R_F(x)$.
+  \item For the first day, find global maxima of $J_L[]$ to obtain price to submit.
+  \item On proceeding to a new day, take previous follower's price and perform recursive regression to efficiently update approximation of $R(x)$.
+  \item Again, find maxima of updated $R(x)$ and submit price. Repeat for each new day.
+\end{enumerate}
+
+% Something else here..
+
+\newpage
+\section{Schedule}
+This section describes each task in more detail.
+
+\subsection{Tasks}
+We have broken development down into the following key deliverables:
+
+\begin{enumerate}
+  \item Learning the reaction function (\emph{Sam} \& \emph{Danyal})
+    \begin{itemize}
+      \item Currently assuming the follower's reaction function is linear, so simply representing the function as two variables, $a$ and $b$, from $R(x) = a + bx$.
+      \item We then parse CSV data files to obtain historical data on follower responses
+      \item After, we perform linear regression via least-squares on this data to to find values for $a$ and $b$.
+      \item Regression performed using formula from Xiao-Jun's fourth lecture, slide 20.
+      \item Include formula here?
+      \item Our next task is to find the global maxima of the function.
+    \end{itemize}
+  \item Finding the global maxima (\emph{Freddy})
+    \begin{itemize}
+      \item Having estimated the follower's reaction function, $R(x),$ we will then calculate our optimal strategy by maximising the (leader's) payoff function, $J_L[]$.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Gantt Chart}
+The Gantt chart below shows how the development will progress over the coming weeks.
+
+% empty f-s labels
+\setganttlinklabel{f-s}{}
+\begin{ganttchart}%
+  [%x unit=1.0cm,
+  y unit title=0.4cm,
+  y unit chart=0.75cm,
+  vgrid,
+  title/.style={draw=none, fill=MidnightBlue!50!black!80}, title label font=\sffamily\bfseries\color{white}, title label anchor/.style={below=-1.6ex},
+  %title left shift=.05,
+  %title right shift=-.05,
+  title height=1,
+  bar/.style={draw=none, fill=YellowGreen!75},
+  bar height=.6,
+  bar label font=\normalsize\color{black!50},
+  milestone/.style={fill=red, draw=black, rounded corners=1pt},
+  group right shift=0,
+  group top shift=.6,
+  group height=.3,
+  group peaks={}{}{.2}, incomplete/.style={fill=Apricot}]{20}
+\gantttitle{Schedule (Weeks 7-11)}{20} \\
+\gantttitlelist{7,...,11}{4} \\
+  \ganttset{progress label text={}, link/.style={black, -to}}
+  \ganttbar[progress=100, name=T0]{Planning \& Specification}{1}{1} \\
+  \ganttlinkedbar[progress=100, name=T1, link type=dr]{Platform Implementation}{2}{3} \\
+  \ganttbar[progress=50, name=T2]{On-line Learning of $R(x)$}{4}{12} \\
+  \ganttbar[progress=50, name=T3]{Maximise $J_L[]$}{4}{12} \\
+  \ganttmilestone{v1.0 Completion}{12} \\
+  \ganttbar[progress=0, name=T4]{Test \& Evaluate Performance}{13}{14} \\
+  \ganttbar[progress=0, name=T5]{Least-squares Approach}{15}{20} \\
+  \ganttbar[progress=0, name=T6]{Multi-variate Regression}{15}{20} \\
+  \ganttmilestone{v2.0 Completion}{20} \\
+  \ganttlink[link mid=.5, link type=f-s]{T1}{T2}
+  \ganttlink[link mid=.5, link type=f-s]{T1}{T3}
+  \ganttlink[link mid=.5, link type=f-s]{T4}{T5}
+  \ganttlink[link mid=.5, link type=f-s]{T4}{T6}
+\end{ganttchart}
+
+\small
+Milestones/deliverables are marked by a \textbf{\color{red} red} diamond.
+\normalsize
+
+% End document
+\end{document}
