@@ -63,14 +63,21 @@ We have broken development down into the following key deliverables:
       \item We then parse CSV data files to obtain historical data on follower responses
       \item After, we perform linear regression via least-squares on this data to to find values for $a$ and $b$.
       \item Regression performed using formula from Xiao-Jun's fourth lecture, slide 20.
-      \item Include formula here?
       \item Our next task is to find the global maxima of the function.
     \end{itemize}
+  \item{Online Learning (\emph{Sam} \& \emph{Danyal})}
+    \begin{itemize}
+      \item Weight least square w/ a forgetting factor to produce an updated estimator.
+      \item Use recursive least square approach to find coefficients.
+    \end{itemize}
+
   \item Finding the global maxima (\emph{Freddy})
     \begin{itemize}
       \item Having estimated the follower's reaction function, $R(x),$ we will then calculate our optimal strategy by maximising the (leader's) payoff function, $J_L[]$.
     \end{itemize}
 \end{enumerate}
+
+\newpage
 
 \subsection{Gantt Chart}
 The Gantt chart below shows how the development will progress over the coming weeks.
@@ -115,6 +122,7 @@ The Gantt chart below shows how the development will progress over the coming we
 \small
 Milestones/deliverables are marked by a \textbf{\color{red} red} diamond.
 \normalsize
+
 
 % End document
 \end{document}
