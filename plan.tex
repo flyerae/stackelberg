@@ -41,7 +41,7 @@
 
 \subsection{Overview}
 \begin{enumerate}
-  \item On game intialisation, parse \emph{CSV} and perform batch regression to find follower's reaction function, $R_F(x)$.
+  \item On game initialisation, parse \emph{CSV} and perform batch regression to find follower's reaction function, $R_F(x)$.
   \item For the first day, find global maxima of $J_L[]$ to obtain price to submit.
   \item On proceeding to a new day, take previous follower's price and perform recursive regression to efficiently update approximation of $R(x)$.
   \item Again, find maxima of updated $R(x)$ and submit price. Repeat for each new day.
