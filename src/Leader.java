@@ -17,7 +17,7 @@ import java.io.IOException;
 final class Leader extends PlayerImpl
 {
   private List<Record> data = new ArrayList<Record>();
-  private float a, b;
+  private double a, b;
 
   private Leader() throws RemoteException, NotBoundException
   {
@@ -55,7 +55,7 @@ final class Leader extends PlayerImpl
       String line;
       String[] features;
       Record record;
-      
+
       while ((line = input.readLine()) != null) {
         features = line.split(",");
         record = new Record(Integer.parseInt(features[0]),
@@ -78,6 +78,20 @@ final class Leader extends PlayerImpl
   private void findReactionFunction() {
     // set a and b from data
     // according to lecture 4 slide 20
+    float sum_x = 0;
+    float sum_y = 0;
+    float sum_x_squared = 0;
+    float sum_x_y = 0;
+
+    for (Record record : data) {
+      sum_x += record.m_leaderPrice;
+      sum_y += record.m_followerPrice;
+      sum_x_squared += Math.pow(record.m_followerPrice, 2);
+      sum_x_y += record.m_leaderPrice * record.m_followerPrice;
+    }
+
+    a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
+    b = (sum_x_y - (sum_x * sum_y)) / (sum_x_squared - Math.pow(sum_x, 2));
   }
 
   private void updateReactionFunction() {
