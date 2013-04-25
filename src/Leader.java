@@ -17,7 +17,9 @@ import java.io.IOException;
 final class Leader extends PlayerImpl
 {
   private List<Record> data = new ArrayList<Record>();
-  private double a, b;
+  private Payoff payoff = null;
+
+  //private double totalProfit = 0.0;
 
   private Leader() throws RemoteException, NotBoundException
   {
@@ -30,14 +32,27 @@ final class Leader extends PlayerImpl
     findReactionFunction();
   }
 
+	@Override
+	public void endSimulation() throws RemoteException {
+    double profit = 0;
+    for (Record record : this.data) {
+      profit += this.payoff((double)record.m_leaderPrice, (double)record.m_followerPrice);
+    }
+    m_platformStub.log(this.m_type, "We are rich: " + String.valueOf(profit));
+  }
+
   @Override
   public void proceedNewDay(int p_date) throws RemoteException
   {
-    // data.add(m_platformSub.query(m_type, p_date?));
     // updateReactionFunction();
 
-    float price = maximisePayoff();
-    m_platformStub.publishPrice(m_type, price);
+    m_platformStub.publishPrice(m_type, payoff.globalMaximum());
+    Record r = m_platformStub.query(this.m_type, p_date-1);
+    data.add(r);
+      
+    //this.totalProfit += this.payoff((double) r.m_leaderPrice, (double) r.m_followerPrice);
+//    m_platformStub.log(this.m_type,  String.valueOf(this.payoff((double)r.m_leaderPrice, (double)r.m_followerPrice)));
+
   }
 
   public static void main(final String[] p_args) throws RemoteException, NotBoundException
@@ -90,16 +105,28 @@ final class Leader extends PlayerImpl
       sum_x_y += record.m_leaderPrice * record.m_followerPrice;
     }
 
-    a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
-    b = (sum_x_y - (sum_x * sum_y)) / (sum_x_squared - Math.pow(sum_x, 2));
+    double a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
+    double b = (sum_x_y - (sum_x * sum_y)) / (sum_x_squared - Math.pow(sum_x, 2));
+
+    this.payoff = new Payoff(a, b);
+  }
+    
+  /*
+  private float payoff(float leaderPrice, float followerPrice) {
+    return (leaderPrice - 1.0) * demand(leaderPrice, followerPrice);
+  }
+
+  private float demand(float leaderPrice, float followerPrice) {
+    return 2.0 - leaderPrice + 0.3 * followerPrice;
+  }
+  */
+
+  private double payoff(double leaderPrice, double followerPrice) {
+    return (leaderPrice - 1.00) * ((2.0 - leaderPrice) + (0.3 * followerPrice));
   }
 
   private void updateReactionFunction() {
     // online learning
   }
 
-  private float maximisePayoff() {
-    // iterate to find maximum
-    return 1.0f;
-  }
 }

@@ -91,9 +91,7 @@ Publish your new price by calling this method. After calculating your profit and
 #### 3.2.5. Output some information to the GUI
 
 ```java
-public void log(final PlayerType p_type,
-	final String p_text)
-	throws RemoteException;
+public void log(final PlayerType p_type, final String p_text) throws RemoteException;
 ```
 
 By calling this method you can publish some information (e.g. debug information) on the GUI.
