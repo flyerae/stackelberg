@@ -101,11 +101,11 @@ final class Leader extends PlayerImpl
     float sum_x_squared = 0;
     float sum_x_y = 0;
 
-    for (int i = offset; i <= offset + WINDOW_SIZE; ++i) {
-      sum_x += data[i].m_leaderPrice;
-      sum_y += data[i].m_followerPrice;
-      sum_x_squared += Math.pow(data[i].m_followerPrice, 2);
-      sum_x_y += data[i].m_leaderPrice * data[i].m_followerPrice;
+    for (int i = offset - WINDOW_SIZE; i < offset; ++i) {
+      sum_x += data.get(i).m_leaderPrice;
+      sum_y += data.get(i).m_followerPrice;
+      sum_x_squared += Math.pow(data.get(i).m_followerPrice, 2);
+      sum_x_y += data.get(i).m_leaderPrice * data.get(i).m_followerPrice;
     }
 
     double a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
