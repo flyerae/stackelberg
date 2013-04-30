@@ -18,6 +18,8 @@ final class Leader extends PlayerImpl
 {
   private List<Record> data = new ArrayList<Record>();
   private Payoff payoff = null;
+  
+  private static final int WINDOW_SIZE = 60;
 
   //private double totalProfit = 0.0;
 
@@ -90,7 +92,7 @@ final class Leader extends PlayerImpl
     }
   }
 
-  private void findReactionFunction() {
+  private void findReactionFunction(int offset) {
     // set a and b from data
     // according to lecture 4 slide 20
     float sum_x = 0;
@@ -98,11 +100,11 @@ final class Leader extends PlayerImpl
     float sum_x_squared = 0;
     float sum_x_y = 0;
 
-    for (Record record : data) {
-      sum_x += record.m_leaderPrice;
-      sum_y += record.m_followerPrice;
-      sum_x_squared += Math.pow(record.m_followerPrice, 2);
-      sum_x_y += record.m_leaderPrice * record.m_followerPrice;
+    for (int i = offset; i <= offset + WINDOW_SIZE; ++i)
+      sum_x += data[i].m_leaderPrice;
+      sum_y += data[i].m_followerPrice;
+      sum_x_squared += Math.pow(data[i].m_followerPrice, 2);
+      sum_x_y += data[i].m_leaderPrice * data[i].m_followerPrice;
     }
 
     double a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
