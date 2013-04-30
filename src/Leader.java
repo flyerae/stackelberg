@@ -31,7 +31,7 @@ final class Leader extends PlayerImpl
   @Override
   public void startSimulation(final int p_steps) {
     readData("data/Mk1.csv");
-    findReactionFunction();
+    //findReactionFunction();
   }
 
 	@Override
@@ -47,6 +47,7 @@ final class Leader extends PlayerImpl
   public void proceedNewDay(int p_date) throws RemoteException
   {
     // updateReactionFunction();
+    findReactionFunction(p_date-1);
 
     m_platformStub.publishPrice(m_type, payoff.globalMaximum());
     Record r = m_platformStub.query(this.m_type, p_date-1);
@@ -100,7 +101,7 @@ final class Leader extends PlayerImpl
     float sum_x_squared = 0;
     float sum_x_y = 0;
 
-    for (int i = offset; i <= offset + WINDOW_SIZE; ++i)
+    for (int i = offset; i <= offset + WINDOW_SIZE; ++i) {
       sum_x += data[i].m_leaderPrice;
       sum_y += data[i].m_followerPrice;
       sum_x_squared += Math.pow(data[i].m_followerPrice, 2);
