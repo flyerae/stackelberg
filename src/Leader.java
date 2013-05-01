@@ -39,7 +39,10 @@ final class Leader extends PlayerImpl
           findReactionFunction(day);
           float price = payoff.globalMaximum();
           Record currentDay = data.get(day);
-          error[windowSize] += Math.abs(price - currentDay.m_leaderPrice);
+          error[windowSize] += (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice)
+                              - profit(price, currentDay.m_followerPrice)); // Should this be m_followerPrice?
+                                                                            // If we submit price, their response would not be the same as followerPrice.
+                                                                            // Maybe we should send what we expect their price to be given our estimate of R(Ul)?
         }
       }
 
