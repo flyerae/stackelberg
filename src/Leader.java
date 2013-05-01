@@ -32,7 +32,6 @@ final class Leader extends PlayerImpl
   public void startSimulation(final int p_steps) throws RemoteException {
 
       float[] error = new float[MAX_WINDOW_SIZE];
-      int[] number = new int[MAX_WINDOW_SIZE];
       readData("data/Mk1.csv");
 
       for (windowSize = 1; windowSize < MAX_WINDOW_SIZE; ++windowSize) {
@@ -41,15 +40,15 @@ final class Leader extends PlayerImpl
           float price = payoff.globalMaximum();
           Record currentDay = data.get(day);
           error[windowSize] += Math.abs(price - currentDay.m_leaderPrice);
-          number[windowSize] += 1;
         }
       }
 
-        for (int size = 1; size < MAX_WINDOW_SIZE; ++size)
-          m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + " num: " + number[size] + " AVG: " + (error[size] / number[size]));
+        for (int size = 1; size < MAX_WINDOW_SIZE; ++size) {
+          m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + " num: " + (60 - size) + " AVG: " + (error[size] / (60 - size)));
+        }
 
           //TODO: choose window size -> minimum error.
-          //TODO: Don't user error[], number[], just have a minimumError float.
+          //TODO: Don't user error[], just have a minimumError float.
 
     }
 
