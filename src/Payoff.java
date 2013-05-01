@@ -9,6 +9,6 @@ class Payoff {
   }
 
   public float globalMaximum() {
-    return (float) ((-2.7 - 0.3 * this.a) / (0.6 * this.b - 2.0));
+    return (float) ((2.7 + 0.3 * this.a) / (2.0 - 0.6 * this.b));
   }
 }
