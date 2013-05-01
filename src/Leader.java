@@ -13,53 +13,72 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.Math;
 
 final class Leader extends PlayerImpl
 {
   private List<Record> data = new ArrayList<Record>();
   private Payoff payoff = null;
-  
-  private static final int WINDOW_SIZE = 60;
 
-  //private double totalProfit = 0.0;
+  private int windowSize = 0;
 
-  private Leader() throws RemoteException, NotBoundException
-  {
+  private Leader() throws RemoteException, NotBoundException {
     super(PlayerType.LEADER, "Leader");
   }
 
-  @Override
-  public void startSimulation(final int p_steps) {
-    readData("data/Mk1.csv");
-    //findReactionFunction();
-  }
+  private final static int MAX_WINDOW_SIZE = 55;
 
-	@Override
-	public void endSimulation() throws RemoteException {
-    double profit = 0;
-    for (Record record : this.data) {
-      profit += this.payoff((double)record.m_leaderPrice, (double)record.m_followerPrice);
+  @Override
+  public void startSimulation(final int p_steps) throws RemoteException {
+
+      float[] error = new float[MAX_WINDOW_SIZE];
+      int[] number = new int[MAX_WINDOW_SIZE];
+      readData("data/Mk1.csv");
+
+      for (windowSize = 1; windowSize < MAX_WINDOW_SIZE; ++windowSize) {
+        for (int day = windowSize; day < 60; ++day) {
+          findReactionFunction(day);
+          float price = payoff.globalMaximum();
+          Record currentDay = data.get(day);
+          error[windowSize] += Math.abs(profit(price, currentDay.m_followerPrice) - 
+                               profit(currentDay.m_leaderPrice, currentDay.m_followerPrice));
+          number[windowSize] += 1;
+        }
+
+        for (int size = 1; size < MAX_WINDOW_SIZE; ++size)
+          m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + 
+                                " num: " + number[size] + " AVG: " + (error[size] / number[size]));
+
+          //TODO: choose window size -> minimum error.
+          //TODO: Don't user error[], number[], just have a minimumError float.
+
     }
-    m_platformStub.log(this.m_type, "We are rich: " + String.valueOf(profit));
-  }
 
   @Override
-  public void proceedNewDay(int p_date) throws RemoteException
-  {
-    // updateReactionFunction();
-    findReactionFunction(p_date-1);
+    public void endSimulation() throws RemoteException {
+      double profit = 0;
+      for (Record record : this.data) {
+        profit += this.profit((double)record.m_leaderPrice, (double)record.m_followerPrice);
+      }
+      m_platformStub.log(this.m_type, "We are rich: " + String.valueOf(profit));
+    }
 
-    m_platformStub.publishPrice(m_type, payoff.globalMaximum());
-    Record r = m_platformStub.query(this.m_type, p_date-1);
-    data.add(r);
-      
-    //this.totalProfit += this.payoff((double) r.m_leaderPrice, (double) r.m_followerPrice);
-//    m_platformStub.log(this.m_type,  String.valueOf(this.payoff((double)r.m_leaderPrice, (double)r.m_followerPrice)));
+  @Override
+    public void proceedNewDay(int p_date) throws RemoteException {
 
-  }
+      m_platformStub.log(this.m_type, "NEW DAY");
+      // updateReactionFunction();
+      findReactionFunction(p_date-1);
 
-  public static void main(final String[] p_args) throws RemoteException, NotBoundException
-  {
+      m_platformStub.log(this.m_type, "PUB: " + payoff.globalMaximum());
+      m_platformStub.publishPrice(m_type, payoff.globalMaximum());
+      Record r = m_platformStub.query(this.m_type, p_date-1);
+      data.add(r);
+
+
+    }
+
+  public static void main(final String[] p_args) throws RemoteException, NotBoundException {
     new Leader();
   }
 
@@ -77,9 +96,9 @@ final class Leader extends PlayerImpl
       while ((line = input.readLine()) != null) {
         features = line.split(",");
         record = new Record(Integer.parseInt(features[0]),
-                            Float.parseFloat(features[1]),
-                            Float.parseFloat(features[2]),
-                            Float.parseFloat(features[3]));
+            Float.parseFloat(features[1]),
+            Float.parseFloat(features[2]),
+            Float.parseFloat(features[3]));
         data.add(record);
       }
     } catch (IOException e) {
@@ -101,7 +120,7 @@ final class Leader extends PlayerImpl
     float sum_x_squared = 0;
     float sum_x_y = 0;
 
-    for (int i = offset - WINDOW_SIZE; i < offset; ++i) {
+    for (int i = offset - windowSize; i < offset; ++i) {
       sum_x += data.get(i).m_leaderPrice;
       sum_y += data.get(i).m_followerPrice;
       sum_x_squared += Math.pow(data.get(i).m_followerPrice, 2);
@@ -113,23 +132,21 @@ final class Leader extends PlayerImpl
 
     this.payoff = new Payoff(a, b);
   }
-    
-  /*
-  private float payoff(float leaderPrice, float followerPrice) {
-    return (leaderPrice - 1.0) * demand(leaderPrice, followerPrice);
-  }
 
-  private float demand(float leaderPrice, float followerPrice) {
-    return 2.0 - leaderPrice + 0.3 * followerPrice;
-  }
-  */
-
-  private double payoff(double leaderPrice, double followerPrice) {
+  private double profit(double leaderPrice, double followerPrice) {
     return (leaderPrice - 1.00) * ((2.0 - leaderPrice) + (0.3 * followerPrice));
   }
 
-  private void updateReactionFunction() {
-    // online learning
-  }
+  /*
+     private double error(int start, int end) {
+     for (int day = start; day < end; ++day) {
+     Record record = data.get(day);
+     }
+     }
+
+     private void updateReactionFunction() {
+// online learning
+}
+   */
 
 }
