@@ -40,14 +40,13 @@ final class Leader extends PlayerImpl
           findReactionFunction(day);
           float price = payoff.globalMaximum();
           Record currentDay = data.get(day);
-          error[windowSize] += Math.abs(profit(price, currentDay.m_followerPrice) - 
-                               profit(currentDay.m_leaderPrice, currentDay.m_followerPrice));
+          error[windowSize] += Math.abs(price - currentDay.m_leaderPrice);
           number[windowSize] += 1;
         }
+      }
 
         for (int size = 1; size < MAX_WINDOW_SIZE; ++size)
-          m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + 
-                                " num: " + number[size] + " AVG: " + (error[size] / number[size]));
+          m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + " num: " + number[size] + " AVG: " + (error[size] / number[size]));
 
           //TODO: choose window size -> minimum error.
           //TODO: Don't user error[], number[], just have a minimumError float.
