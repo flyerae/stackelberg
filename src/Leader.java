@@ -20,7 +20,7 @@ final class Leader extends PlayerImpl
   private List<Record> data = new ArrayList<Record>();
   private Payoff payoff = null;
 
-  private int windowSize = 0;
+  private int windowSize = 60;
 
   private Leader() throws RemoteException, NotBoundException {
     super(PlayerType.LEADER, "Leader");
@@ -31,6 +31,12 @@ final class Leader extends PlayerImpl
   @Override
   public void startSimulation(final int p_steps) throws RemoteException {
 
+      m_platformStub.log(this.m_type, "Day 1: " + profit(1.776, 1.807));
+      m_platformStub.log(this.m_type, "Day 2: " + profit(1.858, 1.762));
+      m_platformStub.log(this.m_type, "Day 3: " + profit(1.769, 1.770));
+      m_platformStub.log(this.m_type, "Day 4: " + profit(1.879, 1.786));
+
+      /*
       float[] error = new float[MAX_WINDOW_SIZE];
       readData("data/Mk1.csv");
 
@@ -49,10 +55,12 @@ final class Leader extends PlayerImpl
         for (int size = 1; size < MAX_WINDOW_SIZE; ++size) {
           m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + " num: " + (60 - size) + " AVG: " + (error[size] / (60 - size)));
         }
+        */
 
           //TODO: choose window size -> minimum error.
           //TODO: Don't user error[], just have a minimumError float.
-
+      findReactionFunction(61);
+      System.out.println("a: " + this.payoff.a + ", " + this.payoff.b);
     }
 
   @Override
@@ -66,7 +74,7 @@ final class Leader extends PlayerImpl
 
   @Override
     public void proceedNewDay(int p_date) throws RemoteException {
-
+      System.exit(1);
       m_platformStub.log(this.m_type, "NEW DAY");
       // updateReactionFunction();
       findReactionFunction(p_date-1);
@@ -113,7 +121,7 @@ final class Leader extends PlayerImpl
     }
   }
 
-  private void findReactionFunction(int offset) {
+  private void findReactionFunction(int endDate) throws RemoteException {
     // set a and b from data
     // according to lecture 4 slide 20
     float sum_x = 0;
@@ -121,11 +129,14 @@ final class Leader extends PlayerImpl
     float sum_x_squared = 0;
     float sum_x_y = 0;
 
-    for (int i = offset - windowSize; i < offset; ++i) {
-      sum_x += data.get(i).m_leaderPrice;
-      sum_y += data.get(i).m_followerPrice;
-      sum_x_squared += Math.pow(data.get(i).m_followerPrice, 2);
-      sum_x_y += data.get(i).m_leaderPrice * data.get(i).m_followerPrice;
+    for (int date = endDate - windowSize; date < endDate; ++date) {
+      Record day = m_platformStub.query(this.m_type, date);
+      System.out.println(date);
+
+      sum_x += day.m_leaderPrice;
+      sum_y += day.m_followerPrice;
+      sum_x_squared += Math.pow(day.m_followerPrice, 2);
+      sum_x_y += day.m_leaderPrice * day.m_followerPrice;
     }
 
     double a = ((sum_x_squared * sum_y) - (sum_x * sum_x_y)) / (sum_x_squared - Math.pow(sum_x, 2));
