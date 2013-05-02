@@ -46,10 +46,10 @@ final class Leader extends PlayerImpl
       if (currentError < minimumError) {
         minimumError = currentError;
         optimalSize = windowSize;
-        System.out.println("S " + optimalSize);
+        System.out.println("New Minimum: " + optimalSize);
       }
       
-      System.out.printf("Size: %2d Current: %.5f Best %.5f\n", windowSize, currentError, minimumError);
+      System.out.printf("Size: %2d Current: %.5f Best: %.5f\n", windowSize, currentError, minimumError);
     }
     windowSize = optimalSize;
   }
