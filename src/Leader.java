@@ -29,22 +29,24 @@ final class Leader extends PlayerImpl
   @Override
   public void startSimulation(final int p_steps) throws RemoteException {
     double minimumError = Double.POSITIVE_INFINITY;
-    int optimalSize = Int.NEGATIVE_INFINITY;
+    int optimalSize = 0;
 
     for (windowSize = 1; windowSize <= MAX_WINDOW_SIZE; ++windowSize) {
+      double currentError = 0;
       for (int day = windowSize + 1; day <= 60; ++day) {
         findReactionFunction(day);
         double price = payoff.globalMaximum();
         Record currentDay = m_platformStub.query(this.m_type, day);
-        if (
-        (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice) - profit(price, currentDay.m_followerPrice));
+        currentError += (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice) - profit(price, currentDay.m_followerPrice));
+      }
+      System.out.printf("Size: %2d Current: %.5f Average %.5f\n", windowSize, currentError / (60 - windowSize), minimumError / (60 - optimalSize));
+      if (currentError / (60 - windowSize) < minimumError / (60 - optimalSize)) {
+        minimumError = currentError;
+        optimalSize = windowSize;
+        System.out.println("S " + optimalSize);
       }
     }
     windowSize = optimalSize;
-
-    for (int size = 1; size < MAX_WINDOW_SIZE; ++size) {
-    m_platformStub.log(this.m_type, "WS: " + size + " error: " + error[size] + " num: " + (60 - size) + " AVG: " + (error[size] / (60 - size)));
-    }
   }
 
   @Override
