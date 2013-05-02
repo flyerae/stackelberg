@@ -19,8 +19,8 @@ final class Leader extends PlayerImpl
 {
   private Payoff payoff = null;
 
-  private int windowSize = -1;
-  private final static int MAX_WINDOW_SIZE = 55;
+  private int windowSize;
+  private final static int MAX_WINDOW_SIZE = 59;
 
   private Leader() throws RemoteException, NotBoundException {
     super(PlayerType.LEADER, "Leader");
@@ -28,23 +28,28 @@ final class Leader extends PlayerImpl
 
   @Override
   public void startSimulation(final int p_steps) throws RemoteException {
-    double minimumError = Double.POSITIVE_INFINITY;
+    double currentError, minimumError = Double.POSITIVE_INFINITY;
     int optimalSize = 0;
-
+    
     for (windowSize = 1; windowSize <= MAX_WINDOW_SIZE; ++windowSize) {
-      double currentError = 0;
+      currentError = 0;
       for (int day = windowSize + 1; day <= 60; ++day) {
         findReactionFunction(day);
         double price = payoff.globalMaximum();
         Record currentDay = m_platformStub.query(this.m_type, day);
-        currentError += (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice) - profit(price, currentDay.m_followerPrice));
+        currentError += (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice)
+                         - profit(price, currentDay.m_followerPrice));
       }
-      System.out.printf("Size: %2d Current: %.5f Average %.5f\n", windowSize, currentError / (60 - windowSize), minimumError / (60 - optimalSize));
-      if (currentError / (60 - windowSize) < minimumError / (60 - optimalSize)) {
+      currentError /= 60 - windowSize;
+      
+      // Happy with this
+      if (currentError < minimumError) {
         minimumError = currentError;
         optimalSize = windowSize;
         System.out.println("S " + optimalSize);
       }
+      
+      System.out.printf("Size: %2d Current: %.5f Best %.5f\n", windowSize, currentError, minimumError);
     }
     windowSize = optimalSize;
   }
