@@ -27,7 +27,7 @@ final class Leader extends PlayerImpl
     super(PlayerType.LEADER, "Leader");
   }
 
-  private void naiveWindowSize() {
+  private void naiveWindowSize() throws RemoteException {
     double currentError, minimumError = Double.POSITIVE_INFINITY;
     int optimalSize = 0;
 
@@ -91,6 +91,7 @@ final class Leader extends PlayerImpl
   @Override
     public void startSimulation(final int p_steps) throws RemoteException {
       this.cache = new Record[61 + p_steps];
+
       for (int day = 1; day <= 60; ++day)
         this.cache[day] = m_platformStub.query(this.m_type, day);
       
@@ -105,27 +106,27 @@ final class Leader extends PlayerImpl
 
   @Override
     public void proceedNewDay(int p_date) throws RemoteException {
-      this.cache[p_date] = m_platformStub.query(this.m_type, p_date);
       findReactionFunction(p_date);
       m_platformStub.publishPrice(m_type, payoff.globalMaximum());
+      this.cache[p_date] = m_platformStub.query(this.m_type, p_date);
     }
 
-  private void findReactionFunction(int endDate) {
+  private void findReactionFunction(int endDate) throws RemoteException {
     findReactionFunction(endDate, this.cache);
   }
   
-  private void findReactionFunction(int endDate, Record[] data) {
+  private void findReactionFunction(int endDate, Record[] data) throws RemoteException {
     double sumXSquared = 0;
-    double sumY = 0;
-    double sumX = 0;
-    double sumXsumY = 0;
+    double sumY        = 0;
+    double sumX        = 0;
+    double sumXsumY    = 0;
 
     for (int date = endDate - windowSize; date < endDate; ++date) {
       Record day = data[date];
-      sumX += day.m_leaderPrice;
-      sumY += day.m_followerPrice;
+      sumX        += day.m_leaderPrice;
+      sumY        += day.m_followerPrice;
       sumXSquared += Math.pow(day.m_leaderPrice, 2);
-      sumXsumY += day.m_leaderPrice * day.m_followerPrice;
+      sumXsumY    += day.m_leaderPrice * day.m_followerPrice;
     }
 
     int T = endDate - 1;
