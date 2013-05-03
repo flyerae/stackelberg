@@ -10,6 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,7 +35,7 @@ final class Leader extends PlayerImpl
       currentError = 0;
       for (int day = windowSize + 1; day <= 60; ++day) {
         findReactionFunction(day);
-        Record currentDay = query(day);
+        Record currentDay = cache[day];
         double followerPrice = payoff.followerEstimate(currentDay.m_leaderPrice);
         currentError += Math.abs(followerPrice - currentDay.m_followerPrice); 
       }
@@ -51,8 +52,9 @@ final class Leader extends PlayerImpl
     windowSize = optimalSize;
   }
 
-  private Record[] cache = new Record[91];
+  private Record[] cache;
 
+  /*
   private Record query(int day) {
     if (cache[day] == null)  {
       try {
@@ -63,13 +65,14 @@ final class Leader extends PlayerImpl
     }
     return cache[day];
   }
+  */
 
   private void crossValidation(int noFolds) { 
     int currentFold = 0, currentDay = 0, foldSize = 60 / noFolds;
     Record[][] folds = new Record[noFolds][foldSize];
 
     for (int day = 1; day <= 60; ++day)  {
-      folds[currentFold][currentDay++] = query(day);
+      folds[currentFold][currentDay++] = cache[day];
       if (currentDay == foldSize) {
         ++currentFold;
         currentDay = 0;
@@ -77,17 +80,22 @@ final class Leader extends PlayerImpl
     }
 
     for (int testingFold = 0; testingFold < foldSize; ++testingFold) {
-      for (int fold = 0; ) {
-      }
+      ArrayList<Record> training = new ArrayList<Record>(60-foldSize);
+      for (int i = 0; i < noFolds; ++i)
+        if (i != testingFold) training.addAll(Arrays.asList(folds[i]));
     }
      
     this.windowSize = 10;
   }
 
   @Override
-    public void startSimulation(final int p_steps) {
-      //naiveWindowSize();
-      crossValidation(5);
+    public void startSimulation(final int p_steps) throws RemoteException {
+      this.cache = new Record[61 + p_steps];
+      for (int day = 1; day <= 60; ++day)
+        this.cache[day] = m_platformStub.query(this.m_type, day);
+      
+      naiveWindowSize();
+      //crossValidation(5);
     }
 
   @Override
@@ -97,18 +105,23 @@ final class Leader extends PlayerImpl
 
   @Override
     public void proceedNewDay(int p_date) throws RemoteException {
+      this.cache[p_date] = m_platformStub.query(this.m_type, p_date);
       findReactionFunction(p_date);
       m_platformStub.publishPrice(m_type, payoff.globalMaximum());
     }
 
   private void findReactionFunction(int endDate) {
+    findReactionFunction(endDate, this.cache);
+  }
+  
+  private void findReactionFunction(int endDate, Record[] data) {
     double sumXSquared = 0;
     double sumY = 0;
     double sumX = 0;
     double sumXsumY = 0;
 
     for (int date = endDate - windowSize; date < endDate; ++date) {
-      Record day = query(date);
+      Record day = data[date];
       sumX += day.m_leaderPrice;
       sumY += day.m_followerPrice;
       sumXSquared += Math.pow(day.m_leaderPrice, 2);
@@ -119,7 +132,7 @@ final class Leader extends PlayerImpl
     double a = (sumXSquared * sumY - sumX * sumXsumY)  / (T * sumXSquared - Math.pow(sumX, 2));
     double b = (T * sumXsumY - sumX * sumY) / (T * sumXSquared - Math.pow(sumX, 2));
 
-    this.payoff = new Payoff(a, b);
+    this.payoff = new Payoff(a, b);   
   }
 
   private double profit(double leaderPrice, double followerPrice) {
