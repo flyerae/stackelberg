@@ -32,12 +32,12 @@ final class Leader extends PlayerImpl
     int optimalSize = 0;
 
     for (windowSize = 1; windowSize <= MAX_WINDOW_SIZE; ++windowSize) {
-      currentError = 0;
+      currentError = 0.0;
       for (int day = windowSize + 1; day <= 60; ++day) {
         findReactionFunction(day);
         Record currentDay = cache[day];
         double followerPrice = payoff.followerEstimate(currentDay.m_leaderPrice);
-        currentError += Math.abs(followerPrice - currentDay.m_followerPrice); 
+        currentError += Math.abs(followerPrice - currentDay.m_followerPrice);
       }
       currentError /= 60 - windowSize;
 
@@ -78,11 +78,17 @@ final class Leader extends PlayerImpl
         currentDay = 0;
       }
     }
-
+    
     for (int testingFold = 0; testingFold < foldSize; ++testingFold) {
-      ArrayList<Record> training = new ArrayList<Record>(60-foldSize);
+      // training data made of noFolds-1 folds
+      Record[] training = new Record[60-foldSize];
+      
       for (int i = 0; i < noFolds; ++i)
-        if (i != testingFold) training.addAll(Arrays.asList(folds[i]));
+        System.arraycopy(folds[i], 0, training, i*foldSize, foldSize);
+      
+      // TODO: train & test:
+      // pass training array to findReactionFunction()
+      // test on folds[testingFold] to find avg. error
     }
      
     this.windowSize = 10;
@@ -91,7 +97,7 @@ final class Leader extends PlayerImpl
   @Override
     public void startSimulation(final int p_steps) throws RemoteException {
       this.cache = new Record[61 + p_steps];
-
+      
       for (int day = 1; day <= 60; ++day)
         this.cache[day] = m_platformStub.query(this.m_type, day);
       
@@ -111,18 +117,18 @@ final class Leader extends PlayerImpl
       this.cache[p_date] = m_platformStub.query(this.m_type, p_date);
     }
 
-  private void findReactionFunction(int endDate) throws RemoteException {
+  private void findReactionFunction(int endDate) {
     findReactionFunction(endDate, this.cache);
   }
   
-  private void findReactionFunction(int endDate, Record[] data) throws RemoteException {
+  private void findReactionFunction(int endDate, Record[] data) {
     double sumXSquared = 0;
     double sumY        = 0;
     double sumX        = 0;
     double sumXsumY    = 0;
 
     for (int date = endDate - windowSize; date < endDate; ++date) {
-      Record day = data[date];
+      Record day   = data[date];
       sumX        += day.m_leaderPrice;
       sumY        += day.m_followerPrice;
       sumXSquared += Math.pow(day.m_leaderPrice, 2);
