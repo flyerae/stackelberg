@@ -26,8 +26,7 @@ final class Leader extends PlayerImpl
     super(PlayerType.LEADER, "Leader");
   }
 
-  @Override
-  public void startSimulation(final int p_steps) throws RemoteException {
+  private void naiveWindowSize() throws RemoteException {
     double currentError, minimumError = Double.POSITIVE_INFINITY;
     int optimalSize = 0;
     
@@ -35,10 +34,9 @@ final class Leader extends PlayerImpl
       currentError = 0;
       for (int day = windowSize + 1; day <= 60; ++day) {
         findReactionFunction(day);
-        double price = payoff.globalMaximum();
         Record currentDay = m_platformStub.query(this.m_type, day);
-        currentError += (profit(currentDay.m_leaderPrice, currentDay.m_followerPrice)
-                         - profit(price, currentDay.m_followerPrice));
+        double followerPrice = payoff.followerEstimate(currentDay.m_leaderPrice);
+        currentError += Math.abs(followerPrice - currentDay.m_followerPrice); 
       }
       currentError /= 60 - windowSize;
       
@@ -52,6 +50,11 @@ final class Leader extends PlayerImpl
       System.out.printf("Size: %2d Current: %.5f Best: %.5f\n", windowSize, currentError, minimumError);
     }
     windowSize = optimalSize;
+  }
+
+  @Override
+  public void startSimulation(final int p_steps) throws RemoteException {
+    naiveWindowSize();
   }
 
   @Override
