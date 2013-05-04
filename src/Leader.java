@@ -79,17 +79,22 @@ final class Leader extends PlayerImpl
       }
     }
     
-    for (int testingFold = 0; testingFold < foldSize; ++testingFold) {
-      // training data made of noFolds-1 folds
-      Record[] training = new Record[60-foldSize];
+    // test on each fold
+    for (int testingFold = 0; testingFold < noFolds; ++testingFold) {
+      System.out.printf("Fold %d..\n", testingFold);
       
-      for (int i = 0; i < noFolds; ++i)
-        System.arraycopy(folds[i], 0, training, i*foldSize, foldSize);
+      // training data made of noFolds - 1 folds
+      Record[] training = new Record[60 - foldSize];
+      
+      for (int i = 0, j = 0; i < noFolds - 1; ++i)
+        if (i != testingFold) System.arraycopy(folds[i], 0, training, (j++)*foldSize, foldSize);
       
       // TODO: train & test:
       // pass training array to findReactionFunction()
       // test on folds[testingFold] to find avg. error
     }
+    
+    System.out.println("Ended");
      
     this.windowSize = 10;
   }
@@ -101,8 +106,8 @@ final class Leader extends PlayerImpl
       for (int day = 1; day <= 60; ++day)
         this.cache[day] = m_platformStub.query(this.m_type, day);
       
-      naiveWindowSize();
-      //crossValidation(5);
+      //naiveWindowSize();
+      crossValidation(5);
     }
 
   @Override
