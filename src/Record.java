@@ -28,4 +28,8 @@ public final class Record
 		m_followerPrice = p_followerPrice;
 		m_cost = p_cost;
 	}
+
+  public String toString() {
+    return "Date: " + m_date + " Leader: " + m_leaderPrice + " Follower: " + m_followerPrice;
+  }
 }
