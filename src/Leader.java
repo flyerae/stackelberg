@@ -109,7 +109,28 @@ final class Leader extends PlayerImpl
       this.cache[day] = m_platformStub.query(this.m_type, day);
       
     //naiveWindowSize();
-    crossValidation();
+    //crossValidation();
+    trainTest();
+  }
+
+  private int BOB = 45;
+
+  private void trainTest() {
+    double[] error = new double[BOB];
+    for (this.windowSize = 1; this.windowSize < BOB; ++this.windowSize) {
+      findReactionFunction(BOB);
+      for (int i = BOB; i <= 60; ++i) {
+        error[this.windowSize] += calculateError(this.cache[i]);
+      } 
+    }
+    int minimum = 1;
+    for (int i = 2; i < BOB; ++i) {
+      //System.out.printf("Size: %2d, Error: %.5f\n", i, error[i]/30);
+      if (error[i] < error[minimum])
+        minimum = i;
+    }
+    System.out.printf("Size: %2d, Error %.5f\n", minimum, error[minimum]/15);
+    this.windowSize = minimum;
   }
 
   @Override
@@ -124,21 +145,25 @@ final class Leader extends PlayerImpl
     this.cache[p_date] = m_platformStub.query(this.m_type, p_date);
   }
 
+  private final double forgettingFactor = 0.95;
+
   private void findReactionFunction(int endDate) {
     double sumXSquared = 0;
     double sumY        = 0;
     double sumX        = 0;
     double sumXsumY    = 0;
 
+    int T = endDate - 1;
+
     for (int date = endDate - windowSize; date < endDate; ++date) {
       Record day   = this.cache[date];
-      sumX        += day.m_leaderPrice;
-      sumY        += day.m_followerPrice;
-      sumXSquared += Math.pow(day.m_leaderPrice, 2);
-      sumXsumY    += day.m_leaderPrice * day.m_followerPrice;
+      double lambda = Math.pow(forgettingFactor, T + 1 - date);
+      sumX        += lambda * day.m_leaderPrice;
+      sumY        += lambda * day.m_followerPrice;
+      sumXSquared += lambda * Math.pow(day.m_leaderPrice, 2);
+      sumXsumY    += lambda * day.m_leaderPrice * day.m_followerPrice;
     }
 
-    int T = endDate - 1;
     double a = (sumXSquared * sumY - sumX * sumXsumY)  / (T * sumXSquared - Math.pow(sumX, 2));
     double b = (T * sumXsumY - sumX * sumY) / (T * sumXSquared - Math.pow(sumX, 2));
 
