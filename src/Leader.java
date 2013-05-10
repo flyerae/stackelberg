@@ -1,5 +1,3 @@
-package comp34120.ex2;
-
 import comp34120.ex2.PlayerImpl;
 import comp34120.ex2.PlayerType;
 import comp34120.ex2.Record;
@@ -18,6 +16,24 @@ import java.lang.Math;
 
 final class Leader extends PlayerImpl
 {
+  class Payoff {
+
+    double a, b;
+
+    public Payoff(double a, double b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    public double followerEstimate(double leaderPrice) {
+      return this.a + this.b * leaderPrice;
+    }
+
+    public float globalMaximum() {
+      return (float) ((2.7 + 0.3 * this.a) / (2.0 - 0.6 * this.b));
+    }
+  }
+
   private Payoff payoff = null;
 
   private int windowSize;

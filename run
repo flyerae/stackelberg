@@ -15,5 +15,5 @@ set +f
 sleep 2
 rm -rf classes/*
 javac -d classes/ src/*
-java $CLASSPATH $OPTIONS comp34120.ex2.Leader $1
+java $CLASSPATH $OPTIONS Leader $1
 
